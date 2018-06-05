@@ -1,0 +1,28 @@
+.hiddenAnimated{
+    height: 0px;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1);
+    transition-property: all;
+    transition-timing-function: initial;
+    transition-delay: initial;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+.visibleAnimated{
+    height: 100%;
+    transition-duration: 0.2s;
+    transition-timing-function: cubic-bezier(0.86, 0, 0.07, 1);
+    transition-property: all;
+    transition-timing-function: initial;
+    transition-delay: initial;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+.visible{
+    height: 100%;
+    z-index: 100;
+}
+.hidden{
+    height: 0px;
+    z-index: 0;
+}

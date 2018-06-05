@@ -1,0 +1,292 @@
+- Action; veridir(typei data vb.. barındırır).
+
+- Reducer; Redux adi Reducer' dan gelir, amacı da zaten gelen action' ın içinden gelen type, data' yı alır ve tek bir state 
+  (elbette bir javascript objesi) döndürür. Reducer' lar pure function(yan etkileri olmayan fonksiyon) olmalı(zorunlu değil ama olursa iyi olur).
+  bu pure function const bir yapıda olmalı.
+
+- Dispatcher; Action' ları store' a ileten fonksiyondur.
+
+- Action Creator; Bir action yaratan fonksiyon, yalnız bu action' ı store' a göndermez, bunun için store' un sağladığı dispatch kullanılır.
+
+- Store; Uygulamanın state' ini barındırır,  Redux' de tek(single)' dır. Üç adet metodu vardır;
+    * dispacth(action)
+    * getState()
+    * subscribe(listener)
+
+- Middleware; Store'un içindedir. Action' ı store a gönderdiğimizde önce middleware karşılar. Elbette olmak zorunda değildir ama rest ile 
+  haberleştiğimiz durumda avtion' ın tipine bakıp ne yapacağına karar veriyor. örneğin promise' i işleyon ve bir action elde ederse devam ettiriyor.
+
+
+
+  *** Sadece component ler arası taşınacak verileri store' da tut.  ***
+
+
+  *** 
+      - action' lar bir olay gerçekleştiğini bildirir. (what happened)
+      - reducer' lar ise state i b u action' lara göre update eder. tabi state' i kendileri set etmez(pure function), sadece yeniş bir koıpya oluşturup döndürür.
+
+
+
+*** The Store is the object that brings them together. The store has the following responsibilities:
+    - Holds application state;
+    - Allows access to state via getState();
+    - Allows state to be updated via dispatch(action);
+    - Registers listeners via subscribe(listener);
+    - Handles unregistering of listeners via the function returned by subscribe(listener).
+
+
+*** Dispatches an action. This is the only way to trigger a state change. So essentially the only way to update your store/state is by using ‘dispatch’ with an action creator.***
+
+
+- Note that each of these reducers is managing its own part of the global state. The state parameter is different for every reducer, and corresponds to the part of the state it manages
+
+
+- Don’t be afraid to split components into smaller components.
+- All React components must act like pure functions with respect to their props.
+- Clock is now defined as a class rather than a function. This lets us use additional features such as local state and lifecycle hooks.
+- If the component is ever removed from the DOM, React calls the componentWillUnmount() lifecycle hook so the timer is stopped.
+- Do Not Modify State Directly, For example, this will not re-render a component: this.state.comment = 'Hello';//wrong
+    Instead, use setState(): this.setState({comment: 'Hello'});//correct
+
+
+    
+
+    // Wrong, because another thread may change the state' s value during the operation.
+    this.setState({
+    counter: this.state.counter + this.props.increment,
+    });
+
+    
+
+    // Correct
+    this.setState((prevState, props) => ({
+        counter: prevState.counter + props.increment
+    }));
+
+
+///
+    State Updates are Merged
+
+    When you call setState(), React merges the object you provide into the current state.
+
+    For example, your state may contain several independent variables:
+
+    constructor(props) {
+        super(props);
+        this.state = {
+        posts: [],
+        comments: []
+        };
+    }
+
+    Then you can update them independently with separate setState() calls:
+
+    componentDidMount() {
+        fetchPosts().then(response => {
+        this.setState({
+            posts: response.posts
+        });
+        });
+
+        fetchComments().then(response => {
+        this.setState({
+            comments: response.comments
+        });
+        });
+    }
+
+    The merging is shallow, so this.setState({comments}) leaves this.state.posts intact, but completely replaces this.state.comments.
+///
+
+
+- State is often called local or encapsulated. It is not accessible to any component other than the one that owns and sets it.
+- Any state is always owned by some specific component, and any data or UI derived from that state can only affect components “below” them in the tree.
+    If you imagine a component tree as a waterfall of props, each component’s state is like an additional water source that joins it at an arbitrary point but also flows down.
+
+
+- Another difference is that you cannot return false to prevent default behavior in React. You must call preventDefault explicitl
+
+    // This binding is necessary to make `this` work in the callback or use function as the class' s field for typescript.
+    this.handleClick = this.handleClick.bind(this);
+
+
+- You have to be careful about the meaning of this in JSX callbacks. In JavaScript, class methods are not bound by default. If you forget to bind this.handleClick and pass it to onClick, this will be undefined when the function is actually called.
+  This is not React-specific behavior; it is a part of how functions work in JavaScript. Generally, if you refer to a method without () after it, such as onClick={this.handleClick}, you should bind that method.
+
+///
+    If calling bind annoys you, there are two ways you can get around this. If you are using the experimental public class fields syntax, you can use class fields to correctly bind callbacks:
+
+    class LoggingButton extends React.Component {
+    // This syntax ensures `this` is bound within handleClick.
+    // Warning: this is *experimental* syntax.
+    handleClick = () => {
+        console.log('this is:', this);
+    }
+
+    render() {
+        return (
+        <button onClick={this.handleClick}>
+            Click me
+        </button>
+        );
+    }
+    }
+
+    This syntax is enabled by default in Create React App.
+
+    If you aren’t using class fields syntax, you can use an arrow function in the callback:
+
+    class LoggingButton extends React.Component {
+    handleClick() {
+        console.log('this is:', this);
+    }
+
+    render() {
+        // This syntax ensures `this` is bound within handleClick
+        return (
+        <button onClick={(e) => this.handleClick(e)}>
+            Click me
+        </button>
+        );
+    }
+}
+The problem with this syntax is that a different callback is created each time the LoggingButton renders. In most cases, this is fine. However, if this callback is passed as a prop to lower components, those components might do an extra re-rendering. We generally recommend binding in the constructor or using the class fields syntax, to avoid this sort of performance problem.
+///
+
+
+///
+ {unreadMessages.length > 0 &&
+        <h2>
+          You have {unreadMessages.length} unread messages.
+        </h2>
+      }
+      It works because in JavaScript, true && expression always evaluates to expression, and false && expression always evaluates to false.
+///
+
+
+///
+Keys help React identify which items have changed, are added, or are removed. Keys should be given to the elements inside the array to give the elements a stable identity:
+
+const numbers = [1, 2, 3, 4, 5];
+const listItems = numbers.map((number) =>
+  <li key={number.toString()}>
+    {number}
+  </li>
+);
+///
+
+///
+Preventing Component from Rendering
+
+///
+
+
+function WarningBanner(props) {
+  if (!props.warn) {
+    return null;
+  }
+
+  return (
+    <div className="warning">
+      Warning!
+    </div>
+  );
+}
+
+class Page extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {showWarning: true};
+    this.handleToggleClick = this.handleToggleClick.bind(this);
+  }
+
+  handleToggleClick() {
+    this.setState(prevState => ({
+      showWarning: !prevState.showWarning
+    }));
+  }
+
+  render() {
+    return (
+      <div>
+        <WarningBanner warn={this.state.showWarning} />
+        <button onClick={this.handleToggleClick}>
+          {this.state.showWarning ? 'Hide' : 'Show'}
+        </button>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <Page />,
+  document.getElementById('root')
+);
+
+
+///
+Example: Incorrect Key Usage
+
+function ListItem(props) {
+  const value = props.value;
+  return (
+    // Wrong! There is no need to specify the key here:
+    <li key={value.toString()}>
+      {value}
+    </li>
+  );
+}
+
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) =>
+    // Wrong! The key should have been specified here:
+    <ListItem value={number} />
+  );
+  return (
+    <ul>
+      {listItems}
+    </ul>
+  );
+}
+
+const numbers = [1, 2, 3, 4, 5];
+ReactDOM.render(
+  <NumberList numbers={numbers} />,
+  document.getElementById('root')
+);
+
+Example: Correct Key Usage
+
+function ListItem(props) {
+  // Correct! There is no need to specify the key here:
+  return <li>{props.value}</li>;
+}
+
+function NumberList(props) {
+  const numbers = props.numbers;
+  const listItems = numbers.map((number) =>
+    // Correct! Key should be specified inside the array.
+    <ListItem key={number.toString()}
+              value={number} />
+  );
+  return (
+    <ul>
+      {listItems}
+    </ul>
+  );
+}
+
+const numbers = [1, 2, 3, 4, 5];
+ReactDOM.render(
+  <NumberList numbers={numbers} />,
+  document.getElementById('root')
+);
+///
+
+
+
+///
+- Instead of trying to sync the state between different components, you should rely on the top-down data flow.
+///
+///
